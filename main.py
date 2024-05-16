@@ -70,4 +70,24 @@ class ConsoleInterface:
     def display_winner(winner):
         print(f"Победитель: {winner}")
 
+class ConsoleGame:
+    def __init__(self):
+        self.interface = ConsoleInterface()
+        self.player = Hero("Player")
+        self.computer = Hero("Computer")
+        self.game = Game(self.player, self.computer)
+
+    def run(self):
+        self.interface.display_menu()
+        choice = self.interface.get_menu_choice()
+        if choice == "1":
+            self.game.start()
+        elif choice == "2":
+            print("Игра завершена.")
+        else:
+            print("Неверный выбор.")
+
+# Тестирование:
+game = ConsoleGame()
+game.run()
 
