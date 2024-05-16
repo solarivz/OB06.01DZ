@@ -48,3 +48,26 @@ class Game(GameA):
         else:
             print(f"{self.computer.name} победил!")
 
+class ConsoleInterface:
+    @staticmethod
+    def display_menu():
+        print("=== Битва героев ===")
+        print("1. Начать новую игру")
+        print("2. Выйти из игры")
+
+    @staticmethod
+    def get_menu_choice():
+        choice = input("Выберите действие: ")
+        return choice
+
+    @staticmethod
+    def display_game_state(player, computer):
+        print("=== Состояние игры ===")
+        print(f"Ваше здоровье: {player.health}")
+        print(f"Здоровье компьютера: {computer.health}")
+
+    @staticmethod
+    def display_winner(winner):
+        print(f"Победитель: {winner}")
+
+
