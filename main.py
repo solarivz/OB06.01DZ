@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import random
 
 class HeroA(ABC):
     def __init__(self, name, health=100, attack_power=20):
@@ -23,7 +24,54 @@ class GameA(ABC):
     def start(self):
         pass
 
+class Interface(ABC):
+    @abstractmethod
+    def display_menu(self):
+        pass
+
+    @abstractmethod
+    def get_menu_choice(self):
+        pass
+
+    @abstractmethod
+    def display_first_attacker(self, attacker):
+        pass
+
+    @abstractmethod
+    def display_attack(self, attacker, defender):
+        pass
+
+    @abstractmethod
+    def display_winner(self, winner):
+        pass
+
+class ConsoleInterface(Interface):
+    def display_menu(self):
+        print("=== Битва героев ===")
+        print("1. Начать новую игру")
+        print("2. Выйти из игры")
+
+    def get_menu_choice(self):
+        choice = input("Выберите действие: ")
+        return choice
+
+    def display_first_attacker(self, attacker):
+        print(f"{attacker.name} начинает первым!")
+
+    def display_attack(self, attacker, defender):
+        print(f"{attacker.name} атакует {defender.name}. Здоровье {defender.name}: {defender.health}")
+
+    def display_winner(self, winner):
+        print(f"Победитель: {winner.name}")
+
+
 class Hero(HeroA):
+    def __init__(self, name):
+        super().__init__(name)
+        self.name = name
+        self.health = random.randint(80, 120)
+        self.attack_power = random.randint(15, 25)
+
     def attack(self, other):
         other.health -= self.attack_power
 
@@ -32,50 +80,53 @@ class Hero(HeroA):
 
 
 class Game(GameA):
+    def __init__(self, player, computer, interface):
+        super().__init__(player, computer)
+        self.player = player
+        self.computer = computer
+        self.interface = interface
+        self.first_attacker = None
+
+    def determine_first_attacker(self):
+        self.first_attacker = random.choice([self.player, self.computer])
 
     def start(self):
+        self.determine_first_attacker()
+        self.interface.display_first_attacker(self.first_attacker)
         while self.player.is_alive() and self.computer.is_alive():
-            self.player.attack(self.computer)
-            print(
-                f"{self.player.name} атакует {self.computer.name}. {self.computer.name} здоровье: {self.computer.health}")
-            if self.computer.is_alive():
-                self.computer.attack(self.player)
-                print(
-                    f"{self.computer.name} атакует {self.player.name}. {self.player.name} здоровье: {self.player.health}")
+            if self.first_attacker == self.player:
+                self.player_attack()
+                if not self.computer.is_alive():
+                    break
+                self.computer_attack()
+            else:
+                self.computer_attack()
+                if not self.player.is_alive():
+                    break
+                self.player_attack()
 
         if self.player.is_alive():
-            print(f"{self.player.name} победил!")
+            self.interface.display_winner(self.player)
         else:
-            print(f"{self.computer.name} победил!")
+            self.interface.display_winner(self.computer)
 
-class ConsoleInterface:
-    @staticmethod
-    def display_menu():
-        print("=== Битва героев ===")
-        print("1. Начать новую игру")
-        print("2. Выйти из игры")
+    def player_attack(self):
+        self.player.attack(self.computer)
+        self.interface.display_attack(self.player, self.computer)
 
-    @staticmethod
-    def get_menu_choice():
-        choice = input("Выберите действие: ")
-        return choice
+    def computer_attack(self):
+        self.computer.attack(self.player)
+        self.interface.display_attack(self.computer, self.player)
 
-    @staticmethod
-    def display_game_state(player, computer):
-        print("=== Состояние игры ===")
-        print(f"Ваше здоровье: {player.health}")
-        print(f"Здоровье компьютера: {computer.health}")
 
-    @staticmethod
-    def display_winner(winner):
-        print(f"Победитель: {winner}")
+
 
 class ConsoleGame:
-    def __init__(self):
-        self.interface = ConsoleInterface()
+    def __init__(self, interface):
+        self.interface = interface
         self.player = Hero("Player")
         self.computer = Hero("Computer")
-        self.game = Game(self.player, self.computer)
+        self.game = Game(self.player, self.computer, self.interface)
 
     def run(self):
         self.interface.display_menu()
@@ -87,7 +138,10 @@ class ConsoleGame:
         else:
             print("Неверный выбор.")
 
+
 # Тестирование:
-game = ConsoleGame()
-game.run()
+if __name__ == "__main__":
+    interface = ConsoleInterface()
+    game = ConsoleGame(interface)
+    game.run()
 
