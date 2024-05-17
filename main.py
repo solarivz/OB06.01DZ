@@ -90,6 +90,10 @@ class Game(GameA):
     def determine_first_attacker(self):
         self.first_attacker = random.choice([self.player, self.computer])
 
+    def print_info_hero(self):
+        print("Здоровье игрока:", self.player.health, "Сила атаки:", self.player.attack_power)
+        print("Здоровье компьютера:", self.computer.health, "Сила атаки:", self.computer.attack_power)
+
     def start(self):
         self.determine_first_attacker()
         self.interface.display_first_attacker(self.first_attacker)
@@ -132,6 +136,7 @@ class ConsoleGame:
         self.interface.display_menu()
         choice = self.interface.get_menu_choice()
         if choice == "1":
+            self.game.print_info_hero()
             self.game.start()
         elif choice == "2":
             print("Игра завершена.")
